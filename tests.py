@@ -123,6 +123,22 @@ class CISO8601TestCase(unittest.TestCase):
             ciso8601.parse_datetime('2014-12-05asdfasdf'),
             datetime.datetime(2014, 12, 5)
         )
+        self.assertEqual(
+            ciso8601.parse_datetime('2014-12-T01'),
+            datetime.datetime(2014, 12, 1)
+        )
+        self.assertEqual(
+            ciso8601.parse_datetime('2014-12-05T01::02'),
+            datetime.datetime(2014, 12, 5, 1)
+        )
+        self.assertEqual(
+            ciso8601.parse_datetime('2014-12-05T01:02:.123456'),
+            datetime.datetime(2014, 12, 5, 1, 2)
+        )
+        self.assertEqual(
+            ciso8601.parse_datetime('2014-12-05T12:30:45.123456+:30'),
+            datetime.datetime(2014, 12, 5, 12, 30, 45, 123456, pytz.FixedOffset(0))
+        )
 
 if __name__ == '__main__':
     unittest.main()

@@ -37,7 +37,11 @@ static PyObject* _parse(PyObject* self, PyObject* args, int parse_tzinfo)
     }
 
     if (*c == '-') // Optional separator
+    {
         c++;
+        if (*c == 'T' || *c == ' ')
+            goto create_obj;
+    }
 
     // Day
     for (i = 0; i < 2; i++) {
@@ -46,8 +50,6 @@ static PyObject* _parse(PyObject* self, PyObject* args, int parse_tzinfo)
         else
             break;
     }
-
-    if (day == 0) day = 1; // YYYY-MM format
 
     if (*c == 'T' || *c == ' ') // Time separator
     {
@@ -62,7 +64,11 @@ static PyObject* _parse(PyObject* self, PyObject* args, int parse_tzinfo)
         }
 
         if (*c == ':') // Optional separator
+        {
             c++;
+            if (*c == ':')
+                goto create_obj;
+        }
 
         // Minute (optional)
         for (i = 0; i < 2; i++) {
@@ -73,7 +79,11 @@ static PyObject* _parse(PyObject* self, PyObject* args, int parse_tzinfo)
         }
 
         if (*c == ':') // Optional separator
+        {
             c++;
+            if (*c == '.' || *c == ',')
+                goto create_obj;
+        }
 
         // Second (optional)
         for (i = 0; i < 2; i++) {
@@ -129,6 +139,9 @@ static PyObject* _parse(PyObject* self, PyObject* args, int parse_tzinfo)
         }
 
         if (tzsign != 0) {
+            if (*c == ':')
+                goto create_obj;
+            
             for (i = 0; i < 2; i++) {
                 if (*c >= '0' && *c <= '9')
                     tzhour = 10 * tzhour + *c++ - '0';
@@ -148,6 +161,8 @@ static PyObject* _parse(PyObject* self, PyObject* args, int parse_tzinfo)
         }
     }
 
+create_obj:
+    if (day == 0) day = 1; // YYYY-MM format
 
     obj = PyDateTime_FromDateAndTime(year, month, day, hour, minute, second, usecond);
     if (!obj)
